@@ -1,0 +1,60 @@
+version: '3.3'
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    container_name: mqtt-broker
+    ports:
+    - 1883:1883
+    volumes:
+    - ./mosquitto/config:/mosquitto/config
+    - ./mosquitto/data:/mosquitto/data
+    - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+    networks:
+    - final_project_iot-net
+  react-ui:
+    image: final_project_react-ui
+    build: ./frontend
+    container_name: react-ui
+    ports:
+    - 8080:80
+    depends_on:
+    - mqtt-broker
+    - subscriber-stack
+    restart: unless-stopped
+    networks:
+    - final_project_iot-net
+  publisher:
+    image: final_project_publisher
+    build: ./backend/publisher
+    container_name: publisher
+    environment:
+      MQTT_HOST: mqtt-broker
+      MQTT_PORT: '1883'
+    depends_on:
+    - mqtt-broker
+    restart: unless-stopped
+    networks:
+    - final_project_iot-net
+  subscriber-stack:
+    image: final_project_subscriber_stack
+    build: ./backend/subscriber_stack
+    container_name: subscriber-stack
+    ports:
+    - 3000:3000
+    - 9090:9090
+    environment:
+      MQTT_HOST: mqtt-broker
+      MQTT_PORT: '1883'
+      METRICS_PORT: '9100'
+    volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - ./grafana-data:/var/lib/grafana
+    depends_on:
+    - mqtt-broker
+    restart: unless-stopped
+    networks:
+    - final_project_iot-net
+networks:
+  final_project_iot-net:
+    driver: bridge

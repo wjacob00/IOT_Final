@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IoT Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- React and ReactDOM from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const e = React.createElement;
+
+    function Dashboard() {
+      const [temp, setTemp] = React.useState(0);
+      const [humidity, setHumidity] = React.useState(0);
+      const [cpu, setCpu] = React.useState(0);
+      const [ledOn, setLedOn] = React.useState(false);
+
+      // TODO: Replace this with real fetch/WebSocket to your backend
+      React.useEffect(() => {
+        const id = setInterval(() => {
+          setTemp((t) => t + 0.1);
+          setHumidity((h) => h + 0.2);
+          setCpu((c) => c + 0.3);
+        }, 2000);
+        return () => clearInterval(id);
+      }, []);
+
+      return (
+        e('div', { style: { fontFamily: 'sans-serif', padding: '1rem' } },
+          e('h1', null, 'IoT Sensor Dashboard'),
+          e('p', null, `Temperature: ${temp.toFixed(1)} °C`),
+          e('p', null, `Humidity: ${humidity.toFixed(1)} %`),
+          e('p', null, `CPU Temp: ${cpu.toFixed(1)} °C`),
+          e('button', {
+            onClick: () => setLedOn(!ledOn)
+          }, ledOn ? 'Turn LED Off' : 'Turn LED On')
+        )
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(Dashboard));
+  </script>
+</body>
+</html>
