@@ -1,8 +1,8 @@
-# IoT Sensor Stack – Dockerized (Raspbian i386-friendly)
+# IoT Sensor Stack – Docker (Raspbian i386)
 
 **Command to start up the project:**
-  chmod +x set_docler_env.sh
-  ./set_docker_env.sh
+  - chmod +x set_docler_env.sh
+  - ./set_docker_env.sh
 
 ___
 
