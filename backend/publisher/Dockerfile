@@ -1,11 +1,7 @@
-FROM python:3.9-slim
+FROM python:3.9-bullseye
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    python3-dev && \
-    rm -rf /var/lib/apt/lists/*
-RUN pip3 install Adafruit_DHT --install-option="--force-pi"
+# Install required system packages for GPIO and DHt
+RUN apt-get update && apt-get install -y python3-dev build-essential libgpiod-dev && rm -rf /var/lib/apt/lists/*
     
 WORKDIR /app
 
@@ -21,4 +17,4 @@ ENV MQTT_HOST=mqtt-broker
 ENV MQTT_PORT=1883
 
 # Run the publisher script
-CMD ["python", "publisher.py"]
+CMD ["python", "-u", "publisher.py"]
