@@ -8,8 +8,13 @@ Current resource: https://grafana.com/tutorials/provision-dashboards-and-data-so
         └── dashboard.yml
 
 Folder to hold json files for:
-On OpenSuse grafana created a folder:
+    default.yaml to inform Grafana to search for jsons and where
+    JSON definitions of dashboard
+    
+The rasperry PI OS on a virtual machine grafana created a folder here:
     /etc/grafana/provisioning/dashboards
+    And included a sample.yaml 
+/etc/grafana/provisioning shows all the general folders    
 
 
 
