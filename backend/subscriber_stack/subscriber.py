@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import os
 from datetime import datetime
 
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt-broker")
@@ -21,3 +22,4 @@ except KeyboardInterrupt:
 	print("Exited")
 	client.loop_stop()
 	client.disconnect()
+
