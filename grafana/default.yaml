@@ -1,4 +1,5 @@
 # a bare bones default yaml to serve as a skeleton/pattern for the final
+# PROVISIONING yaml
 
 apiVersion: 1
 
