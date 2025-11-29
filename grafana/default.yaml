@@ -1,0 +1,13 @@
+# a bare bones default yaml to serve as a skeleton/pattern for the final
+
+apiVersion: 1
+
+providers:
+  - name: Default # A uniquely identifiable name for the provider
+    folder: Services # The folder where to place the dashboards
+    type: file
+    options:
+      path:
+        <path to dashboard definitions>
+        # Default path for Windows: C:/Program Files/GrafanaLabs/grafana/public/dashboards
+        # Default path for Linux is: /var/lib/grafana/dashboards
