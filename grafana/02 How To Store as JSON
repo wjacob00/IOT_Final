@@ -3,21 +3,20 @@
 Initial concept of exporting Grafan dashboards as JSON files, 
 storing them, configuring Grafa to read the stored folder, use in Docker
 
-"Grafana dashboards cannot be directly stored as Docker YAML files. 
+"**** Grafana dashboards cannot be directly stored as Docker YAML files. 
 Instead, Grafana dashboards are stored as JSON files, and these JSON files are then provisioned
   into a Grafana Docker container using a separate YAML provisioning file.
 
-Here's a breakdown of the process:
+------------ Here's a breakdown of the process: -------------------
 
-"Dashboard Export: You create your Grafana dashboards within a running Grafana instance
+"1. Dashboard Export: You create your Grafana dashboards within a running Grafana instance
   and then export them as JSON files. This can be done through the Grafana UI's "Share dashboard" option.
 
-"Provisioning File: You create a YAML provisioning file (e.g., dashboards.yaml) 
+"2. Provisioning File: You create a YAML provisioning file (e.g., dashboards.yaml) 
   that instructs Grafana on where to find these JSON dashboard files 
   and how to import them. This file specifies the path to the dashboard JSON files and other relevant settings.
 
-"Docker Integration: You integrate these files into your Docker setup. This typically involves:
-
+"3. Docker Integration: You integrate these files into your Docker setup. This typically involves:
 "Storing the exported dashboard JSON files and the provisioning YAML file in a local directory.
 
 "Using Docker volumes or bind mounts in your docker-compose.yaml or Dockerfile 
@@ -25,10 +24,10 @@ Here's a breakdown of the process:
 The provisioning YAML file is usually mounted to a specific directory within the 
   Grafana container (e.g., /etc/grafana/provisioning/dashboards).
 
-Grafana Startup: When the Grafana container starts, 
+**** Grafana Startup: When the Grafana container starts, 
   it reads the provisioning YAML file,
   discovers the specified dashboard JSON files, 
   and automatically imports them into the Grafana instance.
 
-This approach allows for "configuration as code" for your Grafana dashboards, 
+**** This approach allows for "configuration as code" for your Grafana dashboards, 
 enabling version control and easier management of your monitoring setup."
