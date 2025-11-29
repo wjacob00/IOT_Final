@@ -8,9 +8,6 @@ Current resource: https://grafana.com/tutorials/provision-dashboards-and-data-so
         └── dashboard.yml
 
 Folder to hold json files for:
-  dashboard definition(s)
-  
-"In the provisioning/dashboards/ directory, create a file called ****default.yaml****...:"
 On OpenSuse grafana created a folder:
     /etc/grafana/provisioning/dashboards
 
