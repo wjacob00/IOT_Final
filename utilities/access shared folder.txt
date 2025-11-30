@@ -1,0 +1,10 @@
+Go -> network then fill in prompt:
+
+smb://192.168.1.4/SharedDellDesk
+
+JoeAtHome
+j@h password
+
+sudo apt-get install cifs-utils
+sudo mkdir /mnt/my_share
+sudo mount -t cifs -o username=JoeAtHome //192.168.1.4/SharedDellDesk /mnt/my_share
