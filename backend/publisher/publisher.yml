@@ -1,0 +1,23 @@
+services:
+  publisher:
+    image: final_project_publisher
+    build: ./backend/publisher
+    container_name: publisher
+    privileged: true
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
+      - "/dev/mem:/dev/mem"
+    volumes:
+      - "/proc:/host_proc:ro"
+      - "/sys:/host_sys:ro"
+      - "/boot:/boot:ro"
+      - "/sys/firmware/devicetree/base:/device-tree:ro"
+    environment:
+      MQTT_HOST: 198.162.1.9
+      MQTT_PORT: '1883'
+      # make libraries look at the mounted host /proc and /sys
+      PROCFS_MOUNT: "/host_proc"
+      SYSFS_MOUNT: "/host_sys"
+    restart: unless-stopped
+    #networks:
+    #- final_project_iot-net
