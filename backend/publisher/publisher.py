@@ -38,9 +38,6 @@ dht11sensor = dht11.DHT11(pin=DHT_PIN)
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt-broker")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 
-MQTT_HOST = "192.168.1.9"
-MQTT_PORT = 1883
-
 client = mqtt.Client()
 
 def connect():
