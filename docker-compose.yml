@@ -56,11 +56,20 @@ services:
     environment:
       MQTT_HOST: mqtt-broker
       MQTT_PORT: '1883'
-      METRICS_PORT: '9100'
+      METRICS_PORT: '8000'
+      GF_SECURITY_ALLOW_EMBEDDING: 'true'
+      GF_SERVER_HTTP_ADDR: 0.0.0.0
+      GF_SERVER_DOMAIN: 10.183.244.90
+      GF_SERVER_ROOT_URL: http://10.183.244.90:3000
+      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
     volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     - ./grafana-data:/var/lib/grafana
     - ./backend/subscriber_stack/sensor_data.txt:/app/sensor_data.txt
+    extra_hosts:
+      host.docker.internal: host-gateway
     depends_on:
     - mqtt-broker
     restart: unless-stopped

@@ -95,12 +95,28 @@ def build_docker_compose() -> dict:
                 "MQTT_HOST": getattr(cfg, "SUBSCRIBER_MQTT_HOST", "mqtt-broker"),
                 "MQTT_PORT": str(getattr(cfg, "SUBSCRIBER_MQTT_PORT", cfg.MQTT_CONTAINER_PORT)),
                 "METRICS_PORT": str(cfg.SUBSCRIBER_METRICS_PORT),
+
+                # Required to embed dashboards in iframe
+                "GF_SECURITY_ALLOW_EMBEDDING": "true",
+
+                # Required so browser can reach Grafana via host IP
+                "GF_SERVER_HTTP_ADDR": "0.0.0.0",
+                "GF_SERVER_DOMAIN": "10.183.244.90",
+                "GF_SERVER_ROOT_URL": "http://10.183.244.90:3000",
+                "GF_SERVER_SERVE_FROM_SUB_PATH": "true",
+
+                # Required to bypass login on iframes
+                "GF_AUTH_ANONYMOUS_ENABLED": "true",
+                "GF_AUTH_ANONYMOUS_ORG_ROLE": "Viewer",
             },
             "volumes": [
                 f"./prometheus.yml:{cfg.PROMETHEUS_CONFIG_MOUNT_PATH}:ro",
                 f"{cfg.GRAFANA_DATA_DIR}:/var/lib/grafana",
                 f"./backend/subscriber_stack/sensor_data.txt:/app/sensor_data.txt",
             ],
+            "extra_hosts": {
+                "host.docker.internal": "host-gateway"
+            },
             "depends_on": ["mqtt-broker"],
             "restart": "unless-stopped",
         },
@@ -123,7 +139,7 @@ def build_prometheus_config() -> dict:
             {
                 "job_name": "subscriber",
                 "static_configs": [
-                    {"targets": [f"subscriber-stack:{cfg.SUBSCRIBER_METRICS_PORT}"]}
+                    {"targets": [f"host.docker.internal:{cfg.SUBSCRIBER_METRICS_PORT}"]}
                 ],
             }
         ],
