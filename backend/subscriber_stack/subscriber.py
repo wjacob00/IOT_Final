@@ -13,7 +13,7 @@ def on_message(client, any, msg):
 client = mqtt.Client()
 client.on_message = on_message
 client.connect(MQTT_HOST, MQTT_PORT, 60)
-client.subscribe("sensors                          /data")
+client.subscribe("sensors/data")
 client.loop_start()
 try:
 	while True:

@@ -2,6 +2,7 @@ import os
 import time
 import random
 import paho.mqtt.client as mqtt
+from paho.mqtt.client import CallbackAPIVersion
 import json
 import sys
 
@@ -32,13 +33,13 @@ import dht11
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.cleanup()
-DHT_PIN = 4  # or whatever you would use on a real Pi
+DHT_PIN = 17  # or whatever you would use on a real Pi
 dht11sensor = dht11.DHT11(pin=DHT_PIN)
 
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt-broker")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 
-client = mqtt.Client()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 
 def connect():
     client.connect(MQTT_HOST, MQTT_PORT, 60)
@@ -86,6 +87,7 @@ def main():
         cpu = round(cpu,2)
         msg = f"{temp},{hum},{cpu}"
         client.publish("sensors/data", msg)
+        print(msg)
         time.sleep(5)
 
 if __name__ == "__main__":
