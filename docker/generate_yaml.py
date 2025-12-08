@@ -32,12 +32,24 @@ except ModuleNotFoundError as e:
 
 
 def build_docker_compose() -> dict:
+    # ---- Grafana "not saving" fix ----
+    #
+    # 1) Your previous config enabled anonymous access as Viewer, which CANNOT save dashboards.
+    #    We default anonymous role to Editor so the UI can save.
+    # 2) We also default SERVE_FROM_SUB_PATH to false because your ROOT_URL has no subpath.
+    #
+    grafana_anon_enabled = str(getattr(cfg, "GRAFANA_ANON_ENABLED", True)).lower()
+    grafana_anon_role = getattr(cfg, "GRAFANA_ANON_ROLE", "Editor")  # <-- key fix
+    grafana_admin_user = getattr(cfg, "GRAFANA_ADMIN_USER", "admin")
+    grafana_admin_password = getattr(cfg, "GRAFANA_ADMIN_PASSWORD", "admin")
+    grafana_root_url = getattr(cfg, "GRAFANA_ROOT_URL", "http://10.183.244.90:3000")
+    grafana_domain = getattr(cfg, "GRAFANA_DOMAIN", "10.183.244.90")
+
     services = {
         "mqtt-broker": {
             "image": cfg.MQTT_IMAGE,
             "container_name": "mqtt-broker",
             "ports": [f"{cfg.MQTT_HOST_PORT}:{cfg.MQTT_CONTAINER_PORT}"],
-            # Mount directories (more robust than file-to-file mounts)
             "volumes": [
                 f"{cfg.MQTT_CONFIG_DIR}:/mosquitto/config",
                 f"{cfg.MQTT_DATA_DIR}:/mosquitto/data",
@@ -71,10 +83,8 @@ def build_docker_compose() -> dict:
                 "/sys/firmware/devicetree/base:/device-tree:ro",
             ],
             "environment": {
-                # ✅ Use Docker DNS name, not host IP
                 "MQTT_HOST": getattr(cfg, "PUBLISHER_MQTT_HOST", "mqtt-broker"),
                 "MQTT_PORT": str(getattr(cfg, "PUBLISHER_MQTT_PORT", cfg.MQTT_CONTAINER_PORT)),
-                # ✅ Remove the stray ":" in env var names
                 "PROCFS_MOUNT": "/host_proc",
                 "SYSFS_MOUNT": "/host_sys",
             },
@@ -91,32 +101,35 @@ def build_docker_compose() -> dict:
                 f"{cfg.PROMETHEUS_PORT_HOST}:{cfg.PROMETHEUS_PORT_CONTAINER}",
             ],
             "environment": {
-                # ✅ Use Docker DNS name, not host IP
                 "MQTT_HOST": getattr(cfg, "SUBSCRIBER_MQTT_HOST", "mqtt-broker"),
                 "MQTT_PORT": str(getattr(cfg, "SUBSCRIBER_MQTT_PORT", cfg.MQTT_CONTAINER_PORT)),
                 "METRICS_PORT": str(cfg.SUBSCRIBER_METRICS_PORT),
 
-                # Required to embed dashboards in iframe
+                # iframe support
                 "GF_SECURITY_ALLOW_EMBEDDING": "true",
 
-                # Required so browser can reach Grafana via host IP
+                # server settings
                 "GF_SERVER_HTTP_ADDR": "0.0.0.0",
-                "GF_SERVER_DOMAIN": "10.183.244.90",
-                "GF_SERVER_ROOT_URL": "http://10.183.244.90:3000",
-                "GF_SERVER_SERVE_FROM_SUB_PATH": "true",
+                "GF_SERVER_DOMAIN": str(grafana_domain),
+                "GF_SERVER_ROOT_URL": str(grafana_root_url),
 
-                # Required to bypass login on iframes
-                "GF_AUTH_ANONYMOUS_ENABLED": "true",
-                "GF_AUTH_ANONYMOUS_ORG_ROLE": "Viewer",
+                # IMPORTANT: only set true when ROOT_URL includes a subpath (e.g. .../grafana)
+                "GF_SERVER_SERVE_FROM_SUB_PATH": str(getattr(cfg, "GRAFANA_SERVE_FROM_SUBPATH", False)).lower(),
+
+                # anonymous access (default now allows saving)
+                "GF_AUTH_ANONYMOUS_ENABLED": grafana_anon_enabled,
+                "GF_AUTH_ANONYMOUS_ORG_ROLE": str(grafana_anon_role),
+
+                # optional admin creds (useful when you *do* log in)
+                "GF_SECURITY_ADMIN_USER": str(grafana_admin_user),
+                "GF_SECURITY_ADMIN_PASSWORD": str(grafana_admin_password),
             },
             "volumes": [
                 f"./prometheus.yml:{cfg.PROMETHEUS_CONFIG_MOUNT_PATH}:ro",
                 f"{cfg.GRAFANA_DATA_DIR}:/var/lib/grafana",
                 f"./backend/subscriber_stack/sensor_data.txt:/app/sensor_data.txt",
             ],
-            "extra_hosts": {
-                "host.docker.internal": "host-gateway"
-            },
+            "extra_hosts": {"host.docker.internal": "host-gateway"},
             "depends_on": ["mqtt-broker"],
             "restart": "unless-stopped",
         },
@@ -125,7 +138,6 @@ def build_docker_compose() -> dict:
     for svc in services.values():
         svc["networks"] = [cfg.NETWORK_NAME]
 
-    # Compose v2 ignores "version", so omit it to avoid warnings.
     return {
         "services": services,
         "networks": {cfg.NETWORK_NAME: {"driver": "bridge"}},

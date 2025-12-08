@@ -61,9 +61,11 @@ services:
       GF_SERVER_HTTP_ADDR: 0.0.0.0
       GF_SERVER_DOMAIN: 10.183.244.90
       GF_SERVER_ROOT_URL: http://10.183.244.90:3000
-      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+      GF_SERVER_SERVE_FROM_SUB_PATH: 'false'
       GF_AUTH_ANONYMOUS_ENABLED: 'true'
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Editor
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     - ./grafana-data:/var/lib/grafana
